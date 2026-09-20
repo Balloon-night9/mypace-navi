@@ -651,8 +651,27 @@ function renderRecommend() {
 function renderDetailSection(f) {
   const showTechou = f.bodyCount >= 3 || f.lifeCount >= 2;
   const showNenkin = f.lifeCount >= 2 || f.bodyCount >= 4;
+  const showJiritsu = f.alreadyMedical || f.bodyCount >= 2;
 
   let html = `<hr class="section-divider">`;
+  html += `<p class="lead" style="margin-bottom:16px;">ここから先は、「医療」「大学」「仕事」「制度」に分けて、詳しい情報をまとめています。気になるところだけ見てもらえれば大丈夫です。</p>`;
+
+  // 医療費についての選択肢（自立支援医療）
+  if (showJiritsu) {
+    html += `<div class="chip-group-title">💰 医療費についての選択肢</div>`;
+    html += `
+      <div class="info-card">
+        <h3>自立支援医療（精神通院医療）</h3>
+        <p class="caveat">条件によっては利用できる可能性があります</p>
+        <p>精神科・心療内科などへの通院にかかる医療費の自己負担を軽くできる可能性がある公的な制度です。対象になると、通院医療費の自己負担割合が下がり（目安として通常3割のところ1割程度）、所得に応じて1か月あたりの自己負担の上限額が設定されることがあります。対象は「通院」による治療で、入院や精神疾患に関係のない治療は対象になりません。</p>
+        <p style="margin-top:10px;"><strong>対象になりうる人：</strong>精神疾患（てんかんを含む）により、通院による治療を継続的に必要とする状態の方。</p>
+        <p><strong>申請先：</strong>お住まいの市区町村の障害福祉担当窓口（申請には医師の診断書や所得を確認できる書類などが必要です）。</p>
+        <p class="note-box" style="margin: 10px 0;">自己負担の上限額や必要書類、手続きの流れは、所得の状況やお住まいの自治体によって異なる場合があります。「精神疾患がある＝必ず利用できる」というものではなく、対象になるかどうかは医師の診断や自治体の審査によって決まります。気になる場合は、通院している医療機関や、お住まいの市区町村の障害福祉担当窓口に相談してみましょう。</p>
+        <a class="source-link" href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/hukushi_kaigo/shougaishahukushi/jiritsu/gaiyo.html" target="_blank" rel="noopener">厚生労働省の案内を見る ↗</a>
+        <div class="accessed-date">出典：厚生労働省「自立支援医療制度の概要」（確認日 ${TODAY}）</div>
+      </div>
+    `;
+  }
 
   // 大学生活について（合理的配慮）
   if (f.campusCount > 0) {
@@ -668,7 +687,7 @@ function renderDetailSection(f) {
     if (c.has("exam")) suggestions.add("試験方法についての相談（例：別室受験、時間延長など）");
     if (c.has("groupwork") || c.has("presentation")) suggestions.add("グループワークや発表への参加方法についての相談");
 
-    html += `<div class="chip-group-title">大学生活について（合理的配慮の例）</div>`;
+    html += `<div class="chip-group-title">🏫 大学生活について（合理的配慮の例）</div>`;
     suggestions.forEach(s => {
       html += `<div class="info-card" style="margin-bottom:10px;"><p style="margin:0;">${s}</p></div>`;
     });
@@ -676,7 +695,7 @@ function renderDetailSection(f) {
   }
 
   // 仕事について
-  html += `<div class="chip-group-title">仕事について</div>`;
+  html += `<div class="chip-group-title">💼 仕事について</div>`;
   if (f.jobWorry) {
     const jobs = [
       ["大学のキャリアセンター", "就職活動の進め方や、アルバイトとの両立について相談できます。"],
@@ -691,7 +710,7 @@ function renderDetailSection(f) {
   }
 
   // 制度について
-  html += `<div class="chip-group-title">制度についてもっと知りたい人へ</div>`;
+  html += `<div class="chip-group-title">📋 制度についてもっと知りたい人へ</div>`;
   if (showTechou) {
     html += `
       <div class="info-card">
@@ -728,7 +747,7 @@ function renderDetailSection(f) {
   }
 
   // 事例紹介
-  html += `<div class="chip-group-title" style="margin-top:20px;">似た困りごとの学生の例</div>`;
+  html += `<div class="chip-group-title" style="margin-top:20px;">📚 似た困りごとの学生の例</div>`;
   const examples = [
     {
       text: "朝の授業への参加が難しい学生が、大学の支援窓口と相談しながら、履修方法や課題の進め方を調整しているケースがあります。",
