@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>まいペース相談ナビ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF6EF;
+    --bg-deep: #F2EBDE;
+    --surface: #FFFFFF;
+    --surface-soft: #F3EEE3;
+    --ink: #3B362F;
+    --ink-soft: #786F60;
+    --ink-faint: #A99F8C;
+    --sage: #7E9683;
+    --sage-deep: #5C7768;
+    --sage-tint: #E7EEE7;
+    --peach: #E0975E;
+    --peach-deep: #C97D45;
+    --peach-tint: #FBEEE1;
+    --lavender: #9C93BE;
+    --lavender-tint: #ECE9F5;
+    --alert: #C96555;
+    --alert-tint: #FBEAE5;
+    --line: #E6DFD1;
+    --radius-lg: 26px;
+    --radius-md: 18px;
+    --radius-sm: 12px;
+    --shadow: 0 10px 30px rgba(90, 74, 46, 0.08);
+  }
+
+  :root[data-theme="light"] { color-scheme: light; }
+  :root[data-theme="dark"] { color-scheme: dark; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #24221D;
+      --bg-deep: #1B1A16;
+      --surface: #2E2B24;
+      --surface-soft: #3A362C;
+      --ink: #F1ECE0;
+      --ink-soft: #C7BFAC;
+      --ink-faint: #93897A;
+      --sage: #93AC9C;
+      --sage-deep: #B3C8BB;
+      --sage-tint: #33403A;
+      --peach: #E6A671;
+      --peach-deep: #F0BA8B;
+      --peach-tint: #453626;
+      --lavender: #B4ABD6;
+      --lavender-tint: #37324A;
+      --alert: #E08972;
+      --alert-tint: #453029;
+      --line: #454034;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #24221D; --bg-deep: #1B1A16; --surface: #2E2B24; --surface-soft: #3A362C;
+    --ink: #F1ECE0; --ink-soft: #C7BFAC; --ink-faint: #93897A;
+    --sage: #93AC9C; --sage-deep: #B3C8BB; --sage-tint: #33403A;
+    --peach: #E6A671; --peach-deep: #F0BA8B; --peach-tint: #453626;
+    --lavender: #B4ABD6; --lavender-tint: #37324A;
+    --alert: #E08972; --alert-tint: #453029; --line: #454034;
+    --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+    color: var(--ink);
+    font-family: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
+    line-height: 1.8;
+    min-height: 100vh;
+    padding: 28px 16px 60px;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .display {
+    font-family: "M PLUS Rounded 1c", "Zen Maru Gothic", sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+    margin: 0;
+  }
+  .wrap { max-width: 520px; margin: 0 auto; }
+
+  /* progress dots */
+  .progress { display: flex; justify-content: center; gap: 8px; margin-bottom: 22px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); transition: all .3s ease; }
+  .dot.active { background: var(--sage); width: 22px; border-radius: 5px; }
+  .dot.done { background: var(--sage-deep); opacity: .55; }
+
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 30px 26px;
+    animation: rise .45s cubic-bezier(.2,.8,.3,1);
+  }
+  @media (prefers-reduced-motion: reduce) { .card { animation: none; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+  .eyebrow { font-size: 14px; color: var(--sage-deep); font-weight: 700; margin-bottom: 6px; }
+  h2.title { font-size: 22px; line-height: 1.5; margin-bottom: 10px; }
+  .lead { color: var(--ink-soft); font-size: 15.5px; margin-bottom: 22px; }
+
+  .hero-icon { font-size: 42px; margin-bottom: 14px; display: block; }
+
+  /* checkbox list */
+  .check-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 6px; }
+  .check-item {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface-soft);
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+    user-select: none;
+  }
+  .check-item:hover { border-color: var(--line); }
+  .check-item.checked {
+    background: var(--sage-tint);
+    border-color: var(--sage);
+  }
+  .box {
+    flex: 0 0 26px; width: 26px; height: 26px; border-radius: 9px;
+    border: 2.5px solid var(--ink-faint);
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s ease;
+  }
+  .check-item.checked .box {
+    background: var(--sage); border-color: var(--sage);
+  }
+  .box svg { width: 15px; height: 15px; opacity: 0; transform: scale(.5); transition: all .15s ease; }
+  .check-item.checked .box svg { opacity: 1; transform: scale(1); }
+  .check-label { font-size: 15.5px; color: var(--ink); }
+
+  textarea, input[type="text"] {
+    width: 100%; font-family: inherit; font-size: 15px; color: var(--ink);
+    background: var(--surface-soft); border: 2px solid var(--line); border-radius: var(--radius-sm);
+    padding: 12px 14px; resize: none; margin-top: 8px;
+  }
+  textarea:focus, input[type="text"]:focus { outline: none; border-color: var(--sage); }
+  .charcount { font-size: 12.5px; color: var(--ink-faint); text-align: right; margin-top: 4px; }
+
+  /* buttons */
+  .actions { display: flex; gap: 10px; margin-top: 26px; }
+  button { font-family: inherit; cursor: pointer; border: none; }
+  .btn-primary {
+    flex: 1; background: var(--sage-deep); color: #FFFDF9; font-weight: 700; font-size: 16px;
+    padding: 15px 18px; border-radius: 999px; transition: transform .12s ease, background .15s ease;
+    box-shadow: 0 6px 16px rgba(92,119,104,0.25);
+  }
+  .btn-primary:hover { background: var(--sage); }
+  .btn-primary:active { transform: scale(.98); }
+  .btn-secondary {
+    background: transparent; color: var(--ink-soft); font-weight: 700; font-size: 15px;
+    padding: 15px 16px; border-radius: 999px; border: 2px solid var(--line);
+  }
+  .btn-secondary:hover { border-color: var(--ink-faint); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+  :focus-visible { outline: 3px solid var(--lavender); outline-offset: 2px; }
+
+  /* summary chips */
+  .chip-group { margin-bottom: 18px; }
+  .chip-group-title { font-size: 13.5px; font-weight: 700; color: var(--sage-deep); margin-bottom: 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    background: var(--sage-tint); color: var(--sage-deep); font-size: 13.5px; font-weight: 500;
+    padding: 7px 13px; border-radius: 999px;
+  }
+  .chip.life { background: var(--lavender-tint); color: #5C5480; }
+
+  .summary-sentence {
+    background: var(--peach-tint); border-radius: var(--radius-md);
+    padding: 18px 18px; font-size: 16px; margin: 18px 0; color: var(--ink);
+    border-left: 5px solid var(--peach);
+  }
+  .note-box {
+    background: var(--surface-soft); border-radius: var(--radius-md);
+    padding: 16px 18px; font-size: 14px; color: var(--ink-soft); margin-top: 16px;
+  }
+
+  /* info cards */
+  .info-card {
+    background: var(--surface-soft); border-radius: var(--radius-md);
+    padding: 18px 18px; margin-bottom: 14px;
+  }
+  .info-card h3 { font-size: 16.5px; margin-bottom: 6px; color: var(--ink); }
+  .info-card p { margin: 0 0 8px; font-size: 14.5px; color: var(--ink-soft); }
+  .info-card .caveat { font-size: 13px; color: var(--peach-deep); font-weight: 600; margin-bottom: 8px; }
+  .source-link {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px;
+    color: var(--sage-deep); text-decoration: none; border-bottom: 1px solid var(--sage);
+  }
+  .source-link:hover { color: var(--sage); }
+  .accessed-date { font-size: 11.5px; color: var(--ink-faint); margin-top: 4px; }
+
+  .example-card {
+    background: var(--lavender-tint); border-radius: var(--radius-md);
+    padding: 16px 18px; margin-bottom: 12px; font-size: 14.5px; color: var(--ink);
+  }
+  .example-card .src { font-size: 12px; color: #5C5480; margin-top: 8px; }
+
+  /* crisis banner */
+  .crisis-banner {
+    background: var(--alert-tint); border: 2px solid var(--alert);
+    border-radius: var(--radius-md); padding: 18px 18px; margin-bottom: 20px;
+  }
+  .crisis-banner h3 { color: var(--alert); font-size: 16px; margin-bottom: 8px; }
+  .crisis-banner p { font-size: 14px; color: var(--ink); margin: 6px 0; }
+  .crisis-banner .tel { font-weight: 700; font-size: 15px; }
+
+  .next-list { display: flex; flex-direction: column; gap: 10px; }
+  .next-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: var(--surface-soft); border: 2px solid transparent; border-radius: var(--radius-md);
+    padding: 14px 16px; cursor: pointer;
+  }
+  .next-item.selected { border-color: var(--peach); background: var(--peach-tint); }
+  .radio { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--ink-faint); margin-top: 2px; position: relative; }
+  .next-item.selected .radio { border-color: var(--peach); }
+  .next-item.selected .radio::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--peach); }
+  .next-item-label { font-size: 15px; }
+  .selected-msg {
+    margin-top: 16px; background: var(--sage-tint); color: var(--sage-deep);
+    padding: 14px 16px; border-radius: var(--radius-md); font-size: 14px;
+  }
+
+  .foot-note { text-align: center; font-size: 12px; color: var(--ink-faint); margin-top: 22px; padding: 0 10px; }
+  .top-illustration { text-align: center; margin-bottom: 8px; }
+
+  .section-divider { height: 1px; background: var(--line); margin: 20px 0; border: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="progress" id="progress"></div>
+  <div class="card" id="card"></div>
+  <p class="foot-note" id="footnote"></p>
+</div>
+
+<script>
+/* ---------------------------------------------------------
+   データ定義
+--------------------------------------------------------- */
+const TODAY = "2026年9月19日";
+
+const GROUPS = {
+  body: {
+    title: "体調・こころのこと",
+    lead: "最近のからだやこころの様子で、あてはまるものを選んでください。",
+    items: [
+      ["mood_down", "気分が落ち込む"],
+      ["no_motivation", "やる気が出ない"],
+      ["fatigue", "強い疲れ・だるさがある"],
+      ["hard_wake", "朝起きるのが難しい"],
+      ["insomnia", "眠れない"],
+      ["oversleep", "寝すぎてしまう"],
+      ["concentration", "集中しにくい"],
+      ["brain_fog", "頭が働きにくい・考えがまとまらない"],
+      ["anxiety", "不安が強い"],
+      ["crowd", "人の多い場所がつらい"],
+      ["transit", "電車やバスでの移動がつらい"],
+      ["palpitation", "動悸・息苦しさなどがある"],
+      ["dizzy", "めまい・ふらつきがある"],
+      ["weather", "気温差や天候によって体調が変わる"],
+    ]
+  },
+  campus: {
+    title: "大学生活で困っていること",
+    lead: "授業や大学生活のなかで、負担に感じていることを選んでください。",
+    items: [
+      ["morning_class", "朝の授業に間に合わない"],
+      ["attendance", "授業に出席すること自体が難しい"],
+      ["long_class", "長時間の授業がつらい"],
+      ["commute", "通学がつらい"],
+      ["deadline", "課題を期限までに出すのが難しい"],
+      ["exam", "試験を受けることが難しい"],
+      ["groupwork", "グループワークが負担"],
+      ["presentation", "人前で発表することが負担"],
+      ["hard_consult", "大学の人に相談することが難しい"],
+      ["leave_worry", "休学・留年が心配"],
+      ["credit_worry", "単位が取れないことが心配"],
+    ]
+  },
+  life: {
+    title: "生活・仕事について",
+    lead: "日々の暮らしのなかで、しんどいと感じていることを選んでください。",
+    items: [
+      ["parttime", "アルバイトが難しい"],
+      ["housework", "家事が難しい"],
+      ["sleep_rhythm", "睡眠リズムが乱れている"],
+      ["meal", "食事をとることが難しい"],
+      ["outing", "外出すること自体が負担"],
+      ["reply_contact", "人との連絡を返すことが負担"],
+    ]
+  },
+  context: {
+    title: "相談やこれからのこと",
+    lead: "相談することについてや、これからのことで、あてはまるものがあれば教えてください。",
+    noOther: true,
+    eyebrow: "もう少しだけ教えてください",
+    items: [
+      ["teacher_ok", "大学の先生には比較的相談しやすいと思う"],
+      ["teacher_hard", "先生に相談するのは怖い・話しにくい"],
+      ["medical_already", "すでに医療機関に通院している"],
+      ["outing_hard", "外出すること自体が難しい"],
+      ["phone_hard", "電話で話すことが負担"],
+      ["talk_hard", "人と話すこと自体が負担"],
+      ["consult_scared", "誰かに相談すること自体が怖い"],
+      ["job_worry", "アルバイトや就職について不安がある"],
+      ["already_support", "すでに大学以外で利用している支援がある"],
+    ]
+  }
+};
+
+const CRISIS_WORDS = ["死にたい","消えたい","死のう","自殺","死んでしまいたい","消えてしまいたい","生きているのがつらい","いなくなりたい"];
+
+/* ---------------------------------------------------------
+   状態
+--------------------------------------------------------- */
+const state = {
+  screen: 0,
+  selections: { body: new Set(), campus: new Set(), life: new Set(), context: new Set() },
+  other: { body: "", campus: "", life: "" },
+  crisisFlag: false,
+  detailOpen: false,
+};
+
+const SCREENS = ["intro","body","campus","life","context","summary","recommend"];
+const CHECK_GROUP_SCREENS = ["body","campus","life","context"];
+
+/* ---------------------------------------------------------
+   ユーティリティ
+--------------------------------------------------------- */
+function labelOf(group, id) {
+  const found = GROUPS[group].items.find(i => i[0] === id);
+  return found ? found[1] : "";
+}
+function countAll() {
+  return state.selections.body.size + state.selections.campus.size + state.selections.life.size;
+}
+function checkCrisis(text) {
+  if (!text) return false;
+  return CRISIS_WORDS.some(w => text.includes(w));
+}
+function updateCrisisFlag() {
+  const texts = [state.other.body, state.other.campus, state.other.life];
+  if (texts.some(checkCrisis)) state.crisisFlag = true;
+}
+
+function crisisBannerHTML() {
+  return `
+  <div class="crisis-banner">
+    <h3>つらい気持ちを、ひとりで抱えないでください</h3>
+    <p>今すぐ話したいときは、こちらに連絡できます。秘密は守られます。</p>
+    <p class="tel">よりそいホットライン　0120-279-338（24時間・無料）</p>
+    <p class="tel">いのちの電話　0570-783-556（毎日10:00〜22:00）</p>
+    <p>命に関わる危険がある場合は、119番（救急）や大学の保健管理センターにもすぐ連絡してください。</p>
+    <p class="accessed-date">出典：厚生労働省「まもろうよ こころ」相談窓口一覧（確認日 ${TODAY}）</p>
+  </div>`;
+}
+
+/* ---------------------------------------------------------
+   レンダリング：チェックリスト画面
+--------------------------------------------------------- */
+function renderChecklist(groupKey) {
+  const g = GROUPS[groupKey];
+  const sel = state.selections[groupKey];
+  const idx = CHECK_GROUP_SCREENS.indexOf(groupKey) + 1; // 1,2,3,4
+  const eyebrowText = g.eyebrow ? g.eyebrow : `困りごとをチェック ${idx} / 3`;
+  let html = `
+    <div class="eyebrow">${eyebrowText}</div>
+    <h2 class="title">${g.title}</h2>
+    <p class="lead">${g.lead}　あてはまるものだけでOKです。</p>
+    <div class="check-list" id="list-${groupKey}">
+  `;
+  g.items.forEach(([id, label]) => {
+    const checked = sel.has(id);
+    html += checkItemHTML(groupKey, id, label, checked);
+  });
+  if (!g.noOther) {
+    const otherChecked = sel.has("other");
+    html += checkItemHTML(groupKey, "other", "その他", otherChecked);
+    html += `</div>`;
+    if (otherChecked) {
+      html += `
+        <textarea id="other-text-${groupKey}" maxlength="50" rows="2"
+          placeholder="よかったら、具体的に教えてください（50字以内）">${state.other[groupKey]}</textarea>
+        <div class="charcount"><span id="cc-${groupKey}">${state.other[groupKey].length}</span>/50</div>
+      `;
+    }
+  } else {
+    html += `</div>`;
+  }
+  html += `
+    <div class="actions">
+      ${idx > 1 ? '<button class="btn-secondary" data-nav="back">もどる</button>' : '<button class="btn-secondary" data-nav="back">最初にもどる</button>'}
+      <button class="btn-primary" data-nav="next">次へ</button>
+    </div>
+  `;
+  return html;
+}
+
+function checkItemHTML(groupKey, id, label, checked) {
+  return `
+    <div class="check-item ${checked ? "checked" : ""}" data-group="${groupKey}" data-id="${id}" role="checkbox" aria-checked="${checked}" tabindex="0">
+      <div class="box">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5L9.5 18L20 6" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="check-label">${label}</div>
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------------
+   レンダリング：イントロ
+--------------------------------------------------------- */
+function renderIntro() {
+  return `
+    <div class="top-illustration hero-icon">🌤️</div>
+    <h2 class="title" style="font-size:24px;">最近、大学に行くのが<br>ちょっとしんどい。</h2>
+    <p class="lead" style="margin-top:14px;">
+      そんなときに、今どんなことで困っているのかを一緒に整理して、
+      相談できそうな場所や、使えるかもしれない制度を探すためのツールです。<br><br>
+      診断をするものではありません。できそうなところから、少しずつで大丈夫です。
+    </p>
+    <div class="note-box">
+      チェックした内容は、この画面を閉じると残りません。安心して答えてください。
+    </div>
+    <div class="actions">
+      <button class="btn-primary" data-nav="next" style="flex:1;">はじめる</button>
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------------
+   レンダリング：状況整理（サマリー）
+--------------------------------------------------------- */
+function buildSummarySentence() {
+  const bodyArr = [...state.selections.body].filter(i => i !== "other");
+  const campusArr = [...state.selections.campus].filter(i => i !== "other");
+  const lifeArr = [...state.selections.life].filter(i => i !== "other");
+  const totalPicked = bodyArr.length + campusArr.length + lifeArr.length;
+
+  if (totalPicked === 0 && !state.other.body && !state.other.campus && !state.other.life) {
+    return "今回はチェックがありませんでした。気になることが出てきたら、また確認してみてください。";
+  }
+
+  const parts = [];
+  if (bodyArr.length) parts.push(labelOf("body", bodyArr[0]));
+  if (campusArr.length) parts.push(labelOf("campus", campusArr[0]));
+  if (!campusArr.length && lifeArr.length) parts.push(labelOf("life", lifeArr[0]));
+
+  let affected = [];
+  if (campusArr.length) affected.push("大学への出席や授業への参加");
+  if (lifeArr.length) affected.push("日常生活");
+  if (affected.length === 0) affected.push("毎日の過ごし方");
+
+  const partsText = parts.length ? parts.join("と") : "いくつかのこと";
+  return `今は${partsText}が負担になっていて、${affected.join("や")}に影響しているようです。`;
+}
+
+function renderSummary() {
+  let html = `
+    <div class="eyebrow">状況の整理</div>
+    <h2 class="title">今の状況を整理すると</h2>
+  `;
+  if (state.crisisFlag) html += crisisBannerHTML();
+
+  html += `<div class="summary-sentence">${buildSummarySentence()}</div>`;
+
+  html += `<hr class="section-divider">`;
+  html += `<div class="chip-group-title" style="margin-bottom:10px;">あなたがチェックしたこと</div>`;
+
+  ["body","campus","life"].forEach(g => {
+    const items = [...state.selections[g]];
+    if (!items.length) return;
+    html += `<div class="chip-group"><div class="chip-group-title">${GROUPS[g].title}</div><div class="chips">`;
+    items.forEach(id => {
+      const label = id === "other" ? (state.other[g] ? `その他：${escapeHTML(state.other[g])}` : "その他") : labelOf(g, id);
+      html += `<span class="chip ${g === "life" ? "life" : ""}">${label}</span>`;
+    });
+    html += `</div></div>`;
+  });
+
+  html += `
+    <div class="note-box">
+      これらの症状は、睡眠不足やストレス、こころの不調、身体の不調など、いろいろな原因で起こることがあります。
+      「この症状がある＝この病気」と決まるものではありません。気になる場合は、医療機関などに相談してみることをおすすめします。
+    </div>
+    <div class="actions">
+      <button class="btn-secondary" data-nav="back">もどる</button>
+      <button class="btn-primary" data-nav="next">まずできそうなことを見る</button>
+    </div>
+  `;
+  return html;
+}
+
+function escapeHTML(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ---------------------------------------------------------
+   状況の読み取り（相談への抵抗感なども考慮）
+--------------------------------------------------------- */
+function computeFlags() {
+  const b = state.selections.body;
+  const c = state.selections.campus;
+  const l = state.selections.life;
+  const ctx = state.selections.context;
+
+  return {
+    bodyCount: [...b].filter(i => i !== "other").length,
+    campusCount: [...c].filter(i => i !== "other").length,
+    lifeCount: [...l].filter(i => i !== "other").length,
+    hasBodyPhysical: ["palpitation","dizzy","weather"].some(k => b.has(k)),
+    hasCredit: ["credit_worry","leave_worry","deadline","exam"].some(k => c.has(k)),
+    barrierTeacher: ctx.has("teacher_hard"),
+    teacherOk: ctx.has("teacher_ok"),
+    alreadyMedical: ctx.has("medical_already"),
+    outingHard: ctx.has("outing_hard"),
+    phoneHard: ctx.has("phone_hard"),
+    talkHard: ctx.has("talk_hard"),
+    consultScared: ctx.has("consult_scared"),
+    jobWorry: ctx.has("job_worry") || l.has("parttime"),
+    alreadySupport: ctx.has("already_support"),
+  };
+}
+
+/* ---------------------------------------------------------
+   おすすめの候補を、やりやすさ順に組み立てる
+--------------------------------------------------------- */
+function buildCandidates(f) {
+  const lowBarrier = f.outingHard || f.phoneHard || f.talkHard || f.consultScared;
+  let cands = [];
+
+  if (f.alreadySupport) {
+    cands.push({ priority: -2, label: "今使っている支援に、今の困りごとも伝えてみる",
+      body: "新しく何かを始めるより、すでにつながっている支援先に、今の状況を伝えてみるところから始められるかもしれません。" });
+  }
+  if (lowBarrier) {
+    cands.push({ priority: -1.5, label: "まずはメールで問い合わせてみる",
+      body: "話すこと自体が負担なときは、電話や対面より先に、メールで少し様子を伝えてみるところから始める方法もあります。" });
+  }
+  if (f.consultScared) {
+    cands.push({ priority: -1, label: "まずは「予約だけ」してみる",
+      body: "何を話すかは、その場で決めなくても大丈夫です。予約することだけを、今日のゴールにしてみるのも一つの方法です。" });
+  }
+
+  cands.push({ priority: lowBarrier ? 0 : 2, label: "学生相談室に相談してみる",
+    body: "大学生活の困りごとや、モヤモヤした気持ちについて、まず話してみることができる場所です。対面が難しい場合は、メールで問い合わせられる大学もあります。" });
+
+  if (f.campusCount > 0) {
+    cands.push({ priority: f.barrierTeacher ? 0.5 : 3, label: "障害学生支援の窓口に相談してみる（名称は大学によって異なります）",
+      body: "授業への出席方法や課題、試験の受け方について、大学と一緒にどんな工夫ができるか考えてもらえる場合があります。" });
+  }
+
+  if (f.bodyCount > 0) {
+    cands.push({ priority: 3.5, label: "大学の保健センターに相談してみる",
+      body: "心身の調子について、学内で気軽に相談できる窓口です。医療機関への橋渡しをしてくれることもあります。" });
+  }
+
+  if (f.alreadyMedical) {
+    cands.push({ priority: 1, label: "今通っている医療機関に、大学生活の困りごとも伝えてみる",
+      body: "すでに相談できる場所があるなら、そこに今の状況もあわせて伝えてみるのも一つの方法です。" });
+  } else if (f.bodyCount > 0) {
+    cands.push({ priority: 5, label: "医療機関に相談してみる方法もあります",
+      body: "気分の落ち込みや眠れなさ、不安などが続いているなら、精神科・心療内科に相談してみる方法もあります。" + (f.hasBodyPhysical ? "動悸やめまいなど身体の症状については、内科などの医療機関という方法もあります。" : "") });
+  }
+
+  if (f.campusCount > 0 && !f.barrierTeacher) {
+    cands.push({ priority: 6, label: "担任の先生や教務に直接相談する",
+      body: "履修や単位のことなど、直接伝えることで早く対応してもらえる場合もあります。" });
+  }
+
+  if (f.jobWorry) {
+    cands.push({ priority: f.teacherOk ? 6.5 : 4.5, label: "キャリアセンターや就労支援について調べてみる",
+      body: "アルバイトや就職について不安があるなら、大学のキャリアセンターなどに相談してみる方法もあります。" });
+  }
+
+  cands.sort((a, b) => a.priority - b.priority);
+  return cands;
+}
+
+/* ---------------------------------------------------------
+   レンダリング：まずはこれ（段階的なおすすめ）
+--------------------------------------------------------- */
+function renderRecommend() {
+  const f = computeFlags();
+  const cands = buildCandidates(f);
+  const primary = cands[0];
+  const alternatives = cands.slice(1, 4);
+
+  let html = `
+    <div class="eyebrow">提案</div>
+    <h2 class="title">まずはここから</h2>
+  `;
+  if (state.crisisFlag) html += crisisBannerHTML();
+
+  if (primary) {
+    html += `
+      <div class="info-card" style="background: var(--sage-tint); border: 2px solid var(--sage);">
+        <div class="caveat" style="color: var(--sage-deep);">🌱 まずはこれ</div>
+        <h3 style="font-size:18px;">${primary.label}</h3>
+        <p>${primary.body}</p>
+        <p style="margin-top:10px; font-size:13.5px; color: var(--ink-soft);">今のあなたなら、ここから始めてみるのが一つの方法です。全部やらなくて大丈夫です。</p>
+      </div>
+    `;
+  } else {
+    html += `
+      <div class="note-box">今回のチェックだけでは、はっきりした提案は出せませんでした。気になることが出てきたら、学生相談室に話してみるところから始めてみてください。</div>
+    `;
+  }
+
+  if (alternatives.length) {
+    html += `<div class="chip-group-title" style="margin: 20px 0 10px;">他にもこんな方法があります</div>`;
+    alternatives.forEach(c => {
+      html += `<div class="info-card"><h3 style="font-size:15.5px;">${c.label}</h3><p style="margin:0;">${c.body}</p></div>`;
+    });
+  }
+
+  html += `
+    <button type="button" class="btn-secondary" id="detail-toggle" style="width:100%; margin-top:8px;">
+      ${state.detailOpen ? "詳しい情報をとじる ▲" : "もっと詳しく知りたい ▼"}
+    </button>
+  `;
+
+  if (state.detailOpen) {
+    html += renderDetailSection(f);
+  }
+
+  html += `
+    <div class="actions">
+      <button class="btn-secondary" data-nav="back">もどる</button>
+      <button class="btn-secondary" data-nav="restart">はじめからやり直す</button>
+    </div>
+  `;
+  return html;
+}
+
+function renderDetailSection(f) {
+  const showTechou = f.bodyCount >= 3 || f.lifeCount >= 2;
+  const showNenkin = f.lifeCount >= 2 || f.bodyCount >= 4;
+
+  let html = `<hr class="section-divider">`;
+
+  // 大学生活について（合理的配慮）
+  if (f.campusCount > 0) {
+    const b = state.selections.body, c = state.selections.campus;
+    const suggestions = new Set();
+    if (c.has("morning_class") || c.has("attendance")) {
+      suggestions.add("出席方法についての相談（例：遅刻時の扱い、出席の代替方法など）");
+      suggestions.add("オンライン参加についての相談");
+    }
+    if (c.has("long_class")) suggestions.add("授業中の休憩についての相談");
+    if (c.has("commute") || b.has("crowd") || b.has("transit")) suggestions.add("人混みを避けられる環境や座席についての相談");
+    if (c.has("deadline")) suggestions.add("課題提出方法・期限についての相談");
+    if (c.has("exam")) suggestions.add("試験方法についての相談（例：別室受験、時間延長など）");
+    if (c.has("groupwork") || c.has("presentation")) suggestions.add("グループワークや発表への参加方法についての相談");
+
+    html += `<div class="chip-group-title">大学生活について（合理的配慮の例）</div>`;
+    suggestions.forEach(s => {
+      html += `<div class="info-card" style="margin-bottom:10px;"><p style="margin:0;">${s}</p></div>`;
+    });
+    html += `<div class="note-box" style="margin-bottom:20px;">必ず認められるとは限りません。大学や授業の内容、本人の状況によって対応は異なります。合理的配慮は、授業の評価基準や教育の本質そのものを変えるものではありません。</div>`;
+  }
+
+  // 仕事について
+  html += `<div class="chip-group-title">仕事について</div>`;
+  if (f.jobWorry) {
+    const jobs = [
+      ["大学のキャリアセンター", "就職活動の進め方や、アルバイトとの両立について相談できます。"],
+      ["新卒応援ハローワーク", "卒業前・卒業後の学生を対象に、就職相談や求人紹介を行っています。"],
+      ["障害者向けの就職支援", "ハローワークの障害者専門窓口などで、働き方について相談できます。"],
+      ["就労移行支援・就労選択支援", "「働きたいけれど、今すぐ就職活動は難しい」という場合、働くための準備をする支援が選択肢になることがあります。"],
+    ];
+    jobs.forEach(([t, d]) => { html += `<div class="info-card"><h3 style="font-size:15px;">${t}</h3><p style="margin:0;">${d}</p></div>`; });
+    html += `<div class="note-box" style="margin-bottom:20px;">利用できるかどうかは、本人の状況や自治体の判断などによって異なります。まずは大学のキャリアセンターに相談してみるのがよいでしょう。</div>`;
+  } else {
+    html += `<div class="note-box" style="margin-bottom:20px;">今回は仕事に関するチェックはありませんでしたが、気になることが出てきたら大学のキャリアセンターに相談できます。</div>`;
+  }
+
+  // 制度について
+  html += `<div class="chip-group-title">制度についてもっと知りたい人へ</div>`;
+  if (showTechou) {
+    html += `
+      <div class="info-card">
+        <h3>精神障害者保健福祉手帳</h3>
+        <p class="caveat">条件によっては利用できる可能性があります</p>
+        <p>こころの不調により、日常生活や社会生活に長期にわたる制約がある場合に交付されることがある手帳です。等級に応じて、税制優遇や公共料金の割引などの支援策があります。</p>
+        <a class="source-link" href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/hukushi_kaigo/shougaishahukushi/techou.html" target="_blank" rel="noopener">厚生労働省の案内を見る ↗</a>
+        <div class="accessed-date">出典：厚生労働省（確認日 ${TODAY}）</div>
+      </div>
+    `;
+  }
+  if (showNenkin) {
+    html += `
+      <div class="info-card">
+        <h3>障害年金（障害基礎年金・障害厚生年金）</h3>
+        <p class="caveat">条件によっては利用できる可能性があります</p>
+        <p>病気やけがによって生活や仕事などが長期的に制限される場合に、現役世代でも受け取れることがある年金です。初診日や保険料の納付状況など、細かい要件があります。</p>
+        <a class="source-link" href="https://www.nenkin.go.jp/service/jukyu/shougainenkin/jukyu-yoken/20150401-01.html" target="_blank" rel="noopener">日本年金機構の案内を見る ↗</a>
+        <div class="accessed-date">出典：日本年金機構（確認日 ${TODAY}）</div>
+      </div>
+    `;
+  }
+  html += `
+    <div class="info-card">
+      <h3>国民年金の学生納付特例制度</h3>
+      <p class="caveat">所得が一定基準以下の学生が対象です</p>
+      <p>20歳以上の学生で保険料の納付が難しい場合、申請により納付が猶予される制度です。この猶予期間中に病気やけがで障害の状態になった場合、条件を満たせば障害基礎年金の対象になることがあります。</p>
+      <a class="source-link" href="https://www.nenkin.go.jp/service/kokunen/menjo/gakutokujimuhoujin.html" target="_blank" rel="noopener">日本年金機構の案内を見る ↗</a>
+      <div class="accessed-date">出典：日本年金機構（確認日 ${TODAY}）</div>
+    </div>
+  `;
+  if (!showTechou && !showNenkin) {
+    html += `<div class="note-box">今回チェックした内容だけでは、上記以外の制度がすぐに関係する可能性は高くなさそうです。気になる場合は大学の窓口や年金事務所に確認してみてください。</div>`;
+  }
+
+  // 事例紹介
+  html += `<div class="chip-group-title" style="margin-top:20px;">似た困りごとの学生の例</div>`;
+  const examples = [
+    {
+      text: "朝の授業への参加が難しい学生が、大学の支援窓口と相談しながら、履修方法や課題の進め方を調整しているケースがあります。",
+      src: "日本学生支援機構「合理的配慮ハンドブック」",
+      url: "https://www.jasso.go.jp/gakusei/tokubetsu_shien/shogai_infomation/handbook/00.html"
+    },
+    {
+      text: "人混みや長時間の外出が負担な学生について、座席の配慮やオンラインでの参加方法を大学と相談しながら決めている例が、各大学の支援ガイドで紹介されています。",
+      src: "弘前大学「教職員のための障害学生支援ガイドブック」",
+      url: "https://home.hirosaki-u.ac.jp/gakutokushien/wp-content/uploads/sites/69/教職員のための障害学生支援ガイドブック2025.pdf"
+    },
+    {
+      text: "体調の波がある学生が、試験の受け方や提出期限について大学の支援センターと相談しながら学生生活を続けている事例が報告されています。",
+      src: "三重大学「障害学生支援ハンドブック」",
+      url: "https://www.mie-u.ac.jp/life/supportstudents/%E2%85%A0.%20%E4%B8%89%E9%87%8D%E5%A4%A7%E5%AD%A6%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E9%9A%9C%E5%AE%B3%E5%AD%A6%E7%94%9F%E6%94%AF%E6%8F%B4.pdf"
+    }
+  ];
+  html += `<p class="lead" style="margin-bottom:12px;">「自分だけかな」と感じなくて大丈夫。公開されている大学の資料をもとに、一般化した例を紹介します。実在する個人を特定できる情報ではありません。</p>`;
+  examples.forEach(ex => {
+    html += `
+      <div class="example-card">
+        <p style="margin:0;">${ex.text}</p>
+        <div class="src">出典：${ex.src}（確認日 ${TODAY}）　<a class="source-link" href="${ex.url}" target="_blank" rel="noopener">資料を見る ↗</a></div>
+      </div>
+    `;
+  });
+
+  return html;
+}
+
+/* ---------------------------------------------------------
+   メインレンダラー
+--------------------------------------------------------- */
+function render() {
+  const screenName = SCREENS[state.screen];
+  const card = document.getElementById("card");
+  let html = "";
+  switch (screenName) {
+    case "intro": html = renderIntro(); break;
+    case "body": html = renderChecklist("body"); break;
+    case "campus": html = renderChecklist("campus"); break;
+    case "life": html = renderChecklist("life"); break;
+    case "context": html = renderChecklist("context"); break;
+    case "summary": html = renderSummary(); break;
+    case "recommend": html = renderRecommend(); break;
+  }
+  card.innerHTML = html;
+  renderProgress();
+  bindEvents(screenName);
+
+  const footnote = document.getElementById("footnote");
+  footnote.textContent = "このツールは診断や制度の利用可否を決めるものではありません。最終的な判断は、医療機関や大学、行政窓口にご確認ください。";
+}
+
+function renderProgress() {
+  const progress = document.getElementById("progress");
+  if (state.screen === 0) { progress.innerHTML = ""; return; }
+  const total = SCREENS.length - 1;
+  let html = "";
+  for (let i = 1; i <= total; i++) {
+    let cls = "dot";
+    if (i === state.screen) cls += " active";
+    else if (i < state.screen) cls += " done";
+    html += `<div class="${cls}"></div>`;
+  }
+  progress.innerHTML = html;
+}
+
+/* ---------------------------------------------------------
+   イベントバインド
+--------------------------------------------------------- */
+function bindEvents(screenName) {
+  document.querySelectorAll("[data-nav]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const nav = btn.getAttribute("data-nav");
+      if (nav === "next") goNext();
+      else if (nav === "back") goBack();
+      else if (nav === "restart") restart();
+    });
+  });
+
+  document.querySelectorAll(".check-item").forEach(item => {
+    const toggle = () => toggleCheck(item.dataset.group, item.dataset.id);
+    item.addEventListener("click", toggle);
+    item.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+    });
+  });
+
+  ["body","campus","life"].forEach(g => {
+    const ta = document.getElementById(`other-text-${g}`);
+    if (ta) {
+      ta.addEventListener("input", () => {
+        state.other[g] = ta.value;
+        const cc = document.getElementById(`cc-${g}`);
+        if (cc) cc.textContent = ta.value.length;
+      });
+    }
+  });
+
+  const detailToggle = document.getElementById("detail-toggle");
+  if (detailToggle) {
+    detailToggle.addEventListener("click", () => {
+      state.detailOpen = !state.detailOpen;
+      render();
+    });
+  }
+}
+
+function toggleCheck(group, id) {
+  const set = state.selections[group];
+  if (set.has(id)) {
+    set.delete(id);
+    if (id === "other") state.other[group] = "";
+  } else {
+    set.add(id);
+  }
+  render();
+}
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function goNext() {
+  updateCrisisFlag();
+  if (state.screen < SCREENS.length - 1) {
+    state.screen++;
+    render();
+    scrollToTop();
+  }
+}
+function goBack() {
+  if (state.screen > 0) {
+    state.screen--;
+    render();
+    scrollToTop();
+  }
+}
+function restart() {
+  state.screen = 0;
+  state.selections = { body: new Set(), campus: new Set(), life: new Set(), context: new Set() };
+  state.other = { body: "", campus: "", life: "" };
+  state.crisisFlag = false;
+  state.detailOpen = false;
+  render();
+  scrollToTop();
+}
+
+render();
+</script>
+</body>
+</html>
